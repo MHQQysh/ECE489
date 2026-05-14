@@ -1,0 +1,113 @@
+\relax 
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Motivation}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Objectives}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Quadruped Locomotion}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Reinforcement Learning}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Model Predictive Control}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Methodology}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Reinforcement Learning Approach}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}Simulation Framework}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.2}PPO Algorithm}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.3}Training Configuration}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hyperparameters}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Episode Configuration}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Observation and Action Spaces}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.4}Reward Function Design}{3}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Observation Space Comparison: Flat vs Slope Terrain}}{4}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Action Space (Identical for Both Terrains)}}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(i) Velocity Tracking}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(ii) Upright Body Orientation}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(iii) Smooth Joint Motions}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(iv) Foot Clearance and Air Time}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(v) Additional Terms}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.5}Reward Experiments}{5}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Reward Function Ablation Study Configurations}}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Experimental Design}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Results}{5}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Reward comparison across different configurations. Shows total episode reward over training iterations. High Velocity achieves fastest convergence but with higher variance. Balanced configuration shows best stability-performance trade-off.}}{6}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Velocity tracking performance comparison. High Velocity configuration achieves better tracking accuracy vs baseline. Conservative shows most stable but slowest tracking.}}{6}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Body stability metrics (roll/pitch RMS). High Stability reduces oscillations compared to baseline. Trade-off observed between velocity tracking and stability.}}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Key Findings}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.6}Domain Randomization}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Friction Coefficient}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Robot Mass and Inertia}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Motor Strength}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Center of Mass Offset}{8}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Domain Randomization comparison. Left: Policy trained WITH DR successfully learns stable locomotion and adapts to varying conditions. Right: Policy trained WITHOUT DR fails to converge - robot remains stationary or falls immediately. DR is essential for learning robust policies that generalize beyond nominal simulation parameters.}}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Domain Randomization Effects}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.7}Training Procedure and Results}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Flat Terrain Training}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Slope Terrain Training}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Training Curves}{10}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Training reward curves for flat (500 iterations) and slope (1000 iterations) terrain. Flat terrain converges faster due to simpler environment and smaller observation space. Slope training shows more variance due to terrain curriculum and larger state space.}}{10}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Episode length and success rate over training. Both configurations achieve stable episode completion after initial exploration phase. Slope terrain requires longer training to handle terrain variations.}}{11}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Velocity tracking accuracy and energy efficiency (CoT) during training. Flat terrain achieves lower CoT (better efficiency) while slope training optimizes for robustness. Final CoT: 78.69 (flat combined), 76.73 (slope forward).}}{11}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Training Convergence Analysis}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.8}Learned Behavior Visualization}{12}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces RL policy on flat terrain. Left: Forward locomotion with stable trot gait. Center: Omnidirectional motion tracking combined velocity commands. Right: Push recovery attempt showing disturbance response (40\% success for forward, 0\% for lateral).}}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Flat Terrain Locomotion}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Slope Terrain Locomotion}{12}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces RL policy on slope terrain. Left: Uphill locomotion with body pitch adjustment. Center: Terrain adaptation using height scan observations. Right: Push recovery on slope demonstrating robustness challenges (20-40\% recovery rate).}}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Evaluation and Comparison}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Experimental Setup}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Test Environments}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Velocity Commands}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3}Evaluation Metrics}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Velocity Tracking (RMS Error)}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Body Stability (RMS Roll/Pitch)}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Energy Efficiency (Cost of Transport)}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Robustness (Push Recovery)}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}RL Controller Results}{14}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces RL Controller Performance (mjlab/MuJoCo PPO Training)}}{15}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces MPC Controller Performance on Flat Terrain}}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Analysis}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}Velocity Tracking}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2}Body Stability}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.3}Energy Efficiency}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.4}Robustness}{16}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Extension: Model Predictive Control}{16}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}MPC Implementation}{16}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Dynamic Model}{16}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Optimization Problem}{16}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Implementation Details}{16}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{MPC Results}{17}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{MPC Performance Analysis}{17}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{MPC Visualization}{17}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces MPC controller locomotion behaviors. Top left: High-speed forward motion (1.5+ m/s) with stable trot gait. Top right: Forward locomotion continuation showing consistent tracking. Bottom left: Pure lateral motion through explicit force optimization. Bottom right: Lateral locomotion with coordinated leg movements and maintained body orientation.}}{18}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Discussion: RL vs MPC}{19}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.1}Tracking Accuracy}{19}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.2}Stability}{19}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.3}Energy Efficiency}{19}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.4}Robustness}{19}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.5}Computational Cost}{19}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.6}Adaptability}{20}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.7}Summary}{20}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces RL vs MPC Trade-off Summary}}{20}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Gait Emergence and Terrain Complexity}{20}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Terrain-Dependent Gait Emergence}{20}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Emergent Gaits: Trotting on flat terrain (left) vs Jumping/Bounding on rough terrain (right). The training environment directly determines the gait pattern.}}{20}{}\protected@file@percent }
+\newlabel{fig:gait_comparison}{{11}{20}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.1}Flat Terrain: Trotting Gait}{21}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.2}Slope Terrain: Trotting with Adaptation}{21}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.1.3}Rough Terrain: Jumping/Bounding Gait}{21}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Training Time vs Terrain Complexity}{21}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Training Requirements vs Terrain Complexity}}{21}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Implications for Policy Design}{21}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Future Directions}{22}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Limitations and Future Work}{22}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Current Limitations}{22}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Future Improvements}{22}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.1}RL Enhancements}{22}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.2}System Integration}{22}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.3}Sim-to-Real Transfer}{23}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{23}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Key Findings}{23}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{RL Performance:}{23}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{MPC Performance:}{23}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Critical Discoveries:}{23}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}RL vs MPC Trade-offs}{24}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Contributions}{24}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.4}Future Directions}{24}{}\protected@file@percent }
+\gdef \@abspage@last{24}

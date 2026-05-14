@@ -24,7 +24,7 @@
       - `reward_experiments_config.py`
    7. 待完成
       - sim2real
-         
+
    详细文档: [`mjlab/README.md`](mjlab/README.md)
 
 2. **模型预测控制 (pympc-quadruped/)**
@@ -48,7 +48,10 @@
       - 斜坡地形测试
    
    详细文档: [`pympc-quadruped/README.md`](pympc-quadruped/README.md)
-
+3. **paper**
+   1. final report latex
+  
+   
 ---
 
 ## 1. 环境配置
