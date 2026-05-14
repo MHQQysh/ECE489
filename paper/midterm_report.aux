@@ -1,0 +1,46 @@
+\relax 
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Project Overview}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Objectives}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Progress Summary}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Methodology}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Simulation Framework}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}PPO Algorithm}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Training Configuration}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hyperparameters}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Episode Configuration}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Observation and Action Spaces}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Observation Space (Flat Terrain): 48 dimensions}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Action Space: 12 dimensions}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Reward Function Design}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Velocity Tracking (weight 3.0)}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Angular Velocity Tracking (weight 2.5)}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Upright Body Orientation (weight 0.5)}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Additional Terms}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Domain Randomization}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Friction Coefficient}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Robot Mass and Inertia}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Motor Strength}{4}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Training reward curves for flat terrain (500 iterations). The policy converges after approximately 300 iterations, achieving a final reward of $\sim $8.5.}}{5}{}\protected@file@percent }
+\newlabel{fig:training_curves}{{1}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Results to Date}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Training Progress}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Flat Terrain Training (500 iterations)}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Critical Discovery: Domain Randomization is Essential}{5}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Domain Randomization comparison. Left: Policy trained WITH DR successfully learns stable locomotion. Right: Policy trained WITHOUT DR fails completely - robot remains stationary or falls immediately.}}{6}{}\protected@file@percent }
+\newlabel{fig:dr_comparison}{{2}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Preliminary Performance Evaluation}{6}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Preliminary RL Controller Performance (Flat Terrain, Forward 1.0 m/s)}}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Challenges Encountered}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Challenge 1: Training Instability}{6}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces RL policy behavior on flat terrain. Left: Forward locomotion with stable trot gait. Center: Omnidirectional motion. Right: Push recovery attempt (40\% success rate).}}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Challenge 2: Domain Randomization Discovery}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Challenge 3: Energy Efficiency}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Challenge 4: Push Recovery}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Remaining Work}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Short-term Goals (Next 4 weeks)}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Extension Goals (Optional)}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Timeline}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{8}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Project Timeline}}{9}{}\protected@file@percent }
+\gdef \@abspage@last{9}
