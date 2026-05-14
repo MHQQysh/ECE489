@@ -1,0 +1,4 @@
+Terrain,Gait,Cmd_Vx,Cmd_Vy,Vel_X_RMSE,Vel_Y_RMSE,Roll_Std,Pitch_Std,Mean_Roll,Mean_Pitch,Mean_Vel_X,Mean_Vel_Y,CoT,Total_Energy,Distance,Push_Recovery_Count,Push_Total,Push_Recovery_Rate
+slope,trotting10,1.0,0.0,1.0004,0.0914,3.2067,0.7028,-0.0082,14.9602,0.0006,0.0095,416.1825,587.7290,0.0208,0,10,0.0
+slope,trotting10,0.0,1.0,0.0657,0.9542,6.0515,1.1907,-3.4175,13.9382,-0.0157,0.0599,53.4785,378.7400,0.1043,0,10,0.0
+slope,trotting10,1.0,0.5,1.0058,0.5026,2.4952,1.8732,-0.0434,13.3530,-0.0030,0.0004,inf,564.8916,0.0074,0,10,0.0

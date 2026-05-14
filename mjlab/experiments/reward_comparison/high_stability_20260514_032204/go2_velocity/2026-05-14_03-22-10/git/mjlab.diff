@@ -1,0 +1,297 @@
+--- git commit ---
+5a433e83fb27dc2b44b21863b47d3dae6e4dc211
+
+
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   pyproject.toml
+	modified:   src/mjlab/asset_zoo/robots/__init__.py
+	modified:   src/mjlab/scripts/train.py
+	modified:   src/mjlab/tasks/velocity/config/__init__.py
+	modified:   src/mjlab/tasks/velocity/config/go1/env_cfgs.py
+	modified:   src/mjlab/tasks/velocity/mdp/velocity_command.py
+	modified:   src/mjlab/tasks/velocity/velocity_env_cfg.py
+	modified:   tests/test_velocity_task.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	analyze_reward_experiments.py
+	debug_projected_gravity.py
+	debug_roll_pitch.py
+	debug_roll_pitch_euler.py
+	debug_roll_pitch_tilt.py
+	debug_tilt_matrix.py
+	docs/FILES_CREATED.md
+	docs/FIX_LOG_ROOT.md
+	docs/README.md
+	docs/cpg/
+	docs/evaluation/
+	docs/experiments/
+	docs/go2/
+	docs/reward_experiments/
+	docs/sim2sim/
+	docs/summaries/
+	eval_slope_vs_flat.py
+	evaluation_results/
+	evaluation_rough.log
+	evaluation_run.log
+	experiments/
+	play_flat_withpush.py
+	play_slope_withpush.py
+	reward_experiments_config.py
+	run.md
+	run_all_experiments.sh
+	run_go2.py
+	run_reward_experiments.py
+	scripts/add_go2_visual_meshes.py
+	scripts/convert_go2_urdf.py
+	scripts/fix_go2_base.py
+	scripts/run_evaluation.sh
+	scripts/sim2sim_test.py
+	src/mjlab/asset_zoo/robots/unitree_go2/
+	src/mjlab/controllers/
+	src/mjlab/scripts/analyze_rl_joints.py
+	src/mjlab/scripts/analyze_rl_simple.py
+	src/mjlab/scripts/comprehensive_evaluation.py
+	src/mjlab/scripts/demo_cpg.py
+	src/mjlab/scripts/demo_cpg_forward.py
+	src/mjlab/scripts/demo_cpg_mpc_style.py
+	src/mjlab/scripts/demo_cpg_simple.py
+	src/mjlab/scripts/demo_cpg_tuned.py
+	src/mjlab/scripts/demo_cpg_velocity.py
+	src/mjlab/scripts/demo_cpg_viewer.py
+	src/mjlab/scripts/evaluate_controller.py
+	src/mjlab/scripts/generate_comparison_report.py
+	src/mjlab/scripts/generate_summary_table.py
+	src/mjlab/scripts/run_comprehensive_eval.py
+	src/mjlab/scripts/run_go2_terrain.py
+	src/mjlab/scripts/test_evaluation_system.py
+	src/mjlab/tasks/velocity/config/go2/
+	test_eval_format.py
+	test_go2_env.py
+	test_push_force.py
+	test_roll_pitch_quick.py
+	"\346\234\200\347\273\210\346\200\273\347\273\223.txt"
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/pyproject.toml b/pyproject.toml
+index bf9c7539..ef737fc0 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -58,6 +58,7 @@ dependencies = [
+ [project.scripts]
+ train = "mjlab.scripts.train:main"
+ play = "mjlab.scripts.play:main"
++run-go2-terrain = "mjlab.scripts.run_go2_terrain:main"
+ demo = "mjlab.scripts.demo:main"
+ list-envs = "mjlab.scripts.list_envs:main"
+ viz-nan = "mjlab.scripts.nan_viz:main"
+diff --git a/src/mjlab/asset_zoo/robots/__init__.py b/src/mjlab/asset_zoo/robots/__init__.py
+index f855d966..1790845a 100644
+--- a/src/mjlab/asset_zoo/robots/__init__.py
++++ b/src/mjlab/asset_zoo/robots/__init__.py
+@@ -16,3 +16,9 @@ from mjlab.asset_zoo.robots.unitree_go1.go1_constants import (
+ from mjlab.asset_zoo.robots.unitree_go1.go1_constants import (
+   get_go1_robot_cfg as get_go1_robot_cfg,
+ )
++from mjlab.asset_zoo.robots.unitree_go2.go2_constants import (
++  GO2_ACTION_SCALE as GO2_ACTION_SCALE,
++)
++from mjlab.asset_zoo.robots.unitree_go2.go2_constants import (
++  get_go2_robot_cfg as get_go2_robot_cfg,
++)
+diff --git a/src/mjlab/scripts/train.py b/src/mjlab/scripts/train.py
+index dd9cb8aa..805fb6c8 100644
+--- a/src/mjlab/scripts/train.py
++++ b/src/mjlab/scripts/train.py
+@@ -37,6 +37,13 @@ class TrainConfig:
+   wandb_run_path: str | None = None
+   wandb_checkpoint_name: str | None = None
+   """Optional checkpoint name within the W&B run to load (e.g. 'model_4000.pt')."""
++  max_iterations_override: int | None = None
++  """Override the max_iterations from rl_cfg. Useful for quick tests."""
++
++  def __post_init__(self) -> None:
++    if self.max_iterations_override is not None:
++      object.__setattr__(self.agent, "max_iterations", self.max_iterations_override)
++
+   gpu_ids: list[int] | Literal["all"] | None = field(default_factory=lambda: [0])
+ 
+   @staticmethod
+@@ -172,9 +179,8 @@ def run_train(task_id: str, cfg: TrainConfig, log_dir: Path) -> None:
+     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
+     runner.load(str(resume_path))
+ 
+-  runner.learn(
+-    num_learning_iterations=cfg.agent.max_iterations, init_at_random_ep_len=True
+-  )
++  max_iters = cfg.max_iterations_override or cfg.agent.max_iterations
++  runner.learn(num_learning_iterations=max_iters, init_at_random_ep_len=True)
+ 
+   env.close()
+ 
+diff --git a/src/mjlab/tasks/velocity/config/__init__.py b/src/mjlab/tasks/velocity/config/__init__.py
+index e69de29b..e7485166 100644
+--- a/src/mjlab/tasks/velocity/config/__init__.py
++++ b/src/mjlab/tasks/velocity/config/__init__.py
+@@ -0,0 +1,6 @@
++"""Velocity task configurations."""
++
++# Import all robot configs to register tasks
++from mjlab.tasks.velocity.config import g1, go1, go2
++
++__all__ = ["g1", "go1", "go2"]
+diff --git a/src/mjlab/tasks/velocity/config/go1/env_cfgs.py b/src/mjlab/tasks/velocity/config/go1/env_cfgs.py
+index 918c0a1a..be16599d 100644
+--- a/src/mjlab/tasks/velocity/config/go1/env_cfgs.py
++++ b/src/mjlab/tasks/velocity/config/go1/env_cfgs.py
+@@ -205,7 +205,7 @@ def unitree_go1_rough_env_cfg(
+ 
+   cfg.rewards["body_ang_vel"].weight = 0.0
+   cfg.rewards["angular_momentum"].weight = 0.0
+-  cfg.rewards["air_time"].weight = 0.0
++  cfg.rewards["air_time"].weight = 1.0
+ 
+   # Per-body-group collision penalties.
+   cfg.rewards["self_collisions"] = RewardTermCfg(
+diff --git a/src/mjlab/tasks/velocity/mdp/velocity_command.py b/src/mjlab/tasks/velocity/mdp/velocity_command.py
+index 20c7f18e..a11daa1c 100644
+--- a/src/mjlab/tasks/velocity/mdp/velocity_command.py
++++ b/src/mjlab/tasks/velocity/mdp/velocity_command.py
+@@ -163,17 +163,19 @@ class UniformVelocityCommand(CommandTerm):
+       enabled = server.gui.add_checkbox("Enable", initial_value=False)
+ 
+       for label, max_val in axes:
++        # Ensure max_val >= 0.1 for the "Max" slider (its min is 0.1)
++        max_val_safe = max(max_val, 0.1) if abs(max_val) < 0.05 else abs(max_val)
+         max_input = server.gui.add_slider(
+           f"Max {label}",
+-          initial_value=max_val,
++          initial_value=max_val_safe,
+           step=0.1,
+           min=0.1,
+           max=10.0,
+         )
+         slider = server.gui.add_slider(
+           label,
+-          min=-max_val,
+-          max=max_val,
++          min=-max_val_safe,
++          max=max_val_safe,
+           step=0.05,
+           initial_value=0.0,
+         )
+diff --git a/src/mjlab/tasks/velocity/velocity_env_cfg.py b/src/mjlab/tasks/velocity/velocity_env_cfg.py
+index 27d66340..cad649cd 100644
+--- a/src/mjlab/tasks/velocity/velocity_env_cfg.py
++++ b/src/mjlab/tasks/velocity/velocity_env_cfg.py
+@@ -205,7 +205,7 @@ def make_velocity_env_cfg() -> ManagerBasedRlEnvCfg:
+         "pose_range": {
+           "x": (-0.5, 0.5),
+           "y": (-0.5, 0.5),
+-          "z": (0.01, 0.05),
++          "z": (0.28, 0.32),  # 🔧 修复: Go2 正常站立高度，不是 0.01-0.05
+           "yaw": (-3.14, 3.14),
+         },
+         "velocity_range": {},
+diff --git a/tests/test_velocity_task.py b/tests/test_velocity_task.py
+index b5fca69f..fd091c70 100644
+--- a/tests/test_velocity_task.py
++++ b/tests/test_velocity_task.py
+@@ -2,7 +2,7 @@
+ 
+ import pytest
+ 
+-from mjlab.asset_zoo.robots import G1_ACTION_SCALE, GO1_ACTION_SCALE
++from mjlab.asset_zoo.robots import G1_ACTION_SCALE, GO1_ACTION_SCALE, GO2_ACTION_SCALE
+ from mjlab.envs.mdp.actions import JointPositionActionCfg
+ from mjlab.tasks.registry import list_tasks, load_env_cfg
+ from mjlab.tasks.velocity.mdp import UniformVelocityCommandCfg
+@@ -26,6 +26,12 @@ def go1_velocity_task_ids(velocity_task_ids: list[str]) -> list[str]:
+   return [t for t in velocity_task_ids if "Go1" in t]
+ 
+ 
++@pytest.fixture(scope="module")
++def go2_velocity_task_ids(velocity_task_ids: list[str]) -> list[str]:
++  """Get all Go2 velocity task IDs."""
++  return [t for t in velocity_task_ids if "Go2" in t]
++
++
+ @pytest.fixture(scope="module")
+ def rough_velocity_task_ids(velocity_task_ids: list[str]) -> list[str]:
+   """Get all rough terrain velocity task IDs."""
+@@ -163,6 +169,43 @@ def test_rough_velocity_play_has_curriculum_disabled() -> None:
+     )
+ 
+ 
++def test_go2_terrain_variants_are_registered(
++  go2_velocity_task_ids: list[str],
++) -> None:
++  """Go2 should expose selectable flat, rough, and focused terrain variants."""
++  assert set(go2_velocity_task_ids) >= {
++    "Mjlab-Velocity-Flat-Unitree-Go2",
++    "Mjlab-Velocity-Rough-Unitree-Go2",
++    "Mjlab-Velocity-Slope-Unitree-Go2",
++    "Mjlab-Velocity-Stairs-Unitree-Go2",
++    "Mjlab-Velocity-Bumps-Unitree-Go2",
++    "Mjlab-Velocity-Random-Unitree-Go2",
++  }
++
++
++def test_go2_focused_terrain_variants_have_generators() -> None:
++  """Focused Go2 terrain variants should use the expected sub-terrain set."""
++  expected_sub_terrains = {
++    "Mjlab-Velocity-Slope-Unitree-Go2": {"flat", "slope_up", "slope_down"},
++    "Mjlab-Velocity-Stairs-Unitree-Go2": {
++      "flat",
++      "easy_stairs",
++      "stairs_up",
++      "stairs_down",
++    },
++    "Mjlab-Velocity-Bumps-Unitree-Go2": {"flat", "low_bumps", "tall_bumps"},
++    "Mjlab-Velocity-Random-Unitree-Go2": {"flat", "random_hfield"},
++  }
++
++  for task_id, sub_terrains in expected_sub_terrains.items():
++    cfg = load_env_cfg(task_id)
++
++    assert cfg.scene.terrain is not None, f"Task {task_id} has no terrain config"
++    assert cfg.scene.terrain.terrain_type == "generator"
++    assert cfg.scene.terrain.terrain_generator is not None
++    assert set(cfg.scene.terrain.terrain_generator.sub_terrains) == sub_terrains
++
++
+ def test_g1_velocity_has_correct_action_scale(g1_velocity_task_ids: list[str]) -> None:
+   """G1 velocity tasks should use G1_ACTION_SCALE."""
+   for task_id in g1_velocity_task_ids:
+@@ -197,3 +240,22 @@ def test_go1_velocity_has_correct_action_scale(
+     assert joint_pos_action.scale == GO1_ACTION_SCALE, (
+       f"Task {task_id} action scale mismatch, expected GO1_ACTION_SCALE"
+     )
++
++
++def test_go2_velocity_has_correct_action_scale(
++  go2_velocity_task_ids: list[str],
++) -> None:
++  """Go2 velocity tasks should use GO2_ACTION_SCALE."""
++  for task_id in go2_velocity_task_ids:
++    cfg = load_env_cfg(task_id)
++
++    assert "joint_pos" in cfg.actions, f"Task {task_id} missing 'joint_pos' action"
++
++    joint_pos_action = cfg.actions["joint_pos"]
++    assert isinstance(joint_pos_action, JointPositionActionCfg), (
++      f"Task {task_id} joint_pos action is not JointPositionActionCfg"
++    )
++
++    assert joint_pos_action.scale == GO2_ACTION_SCALE, (
++      f"Task {task_id} action scale mismatch, expected GO2_ACTION_SCALE"
++    )

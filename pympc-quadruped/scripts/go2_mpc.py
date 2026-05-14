@@ -1,0 +1,416 @@
+"""MuJoCo Go2 MPC demo for the linear MPC quadruped controller.
+
+This script provides a properly configured Go2 controller with:
+- Correct joint limits matching the URDF
+- Tuned MPC parameters for Go2's mass/inertia
+- Proper initial pose for stable standing
+- Support for multiple gait patterns
+- Command-line velocity and yaw rate control
+"""
+
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import argparse
+import time
+
+import mujoco
+import numpy as np
+
+from linear_mpc.gait import Gait
+from linear_mpc.leg_controller import LegController
+from config.go2_mpc_configs import Go2MpcConfig
+from linear_mpc.mpc import ModelPredictiveController
+from utils.mujoco_foot_trajectory_visualization import update_viewer_foot_trajectories
+from utils.mujoco_simulation_utils import (
+    get_simulated_sensor_data,
+    get_true_simulation_data,
+    reset_robot_state,
+)
+from utils.mujoco_viewer_utils import (
+    center_viewer_on_robot,
+    get_viewer_update_interval,
+    update_viewer_monitor,
+)
+from config.robot_configs import Go2Config
+from utils.robot_data import RobotData, RobotDataLogger
+from linear_mpc.swing_foot_trajectory_generator import SwingFootTrajectoryGenerator
+
+
+STATE_ESTIMATION = False
+
+
+def parse_args():
+    """Parse demo options for smoke tests, GUI demos, and visualization."""
+    parser = argparse.ArgumentParser(
+        description="Run the Go2 linear MPC demo with the official MuJoCo API."
+    )
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=0,
+        help="Number of simulation steps to run. Use 0 to run until interrupted.",
+    )
+    parser.add_argument(
+        "--no-viewer",
+        action="store_true",
+        help="Run without opening the MuJoCo passive viewer.",
+    )
+    parser.add_argument(
+        "--monitor-rate",
+        type=float,
+        default=5.0,
+        help="Viewer monitor overlay refresh rate in Hz. Use 0 to disable it.",
+    )
+    parser.add_argument(
+        "--foot-traj-rate",
+        type=float,
+        default=40.0,
+        help=(
+            "Viewer swing-foot trajectory redraw rate in Hz. "
+            "Use 0 to disable it."
+        ),
+    )
+    parser.add_argument(
+        "--foot-traj-samples",
+        type=int,
+        default=64,
+        help="Samples across the MPC horizon for each visualized foot trajectory.",
+    )
+    parser.add_argument(
+        "--log-file",
+        type=str,
+        default=None,
+        help="Path to log file for RobotData output. If not specified, no logging.",
+    )
+    parser.add_argument(
+        "--log-compact",
+        action="store_true",
+        help="Use compact single-line CSV format for logging.",
+    )
+    parser.add_argument(
+        "--log-detailed",
+        action="store_true",
+        help="Use detailed multi-line format with all fields. Default if neither --log-compact nor --log-detailed is specified.",
+    )
+    parser.add_argument(
+        "--log-interval",
+        type=int,
+        default=1,
+        help="Log every N control iterations. Default: 1 (every step).",
+    )
+    parser.add_argument(
+        "--gait",
+        type=str,
+        default="trotting10",
+        choices=["standing", "trotting10", "trotting16", "pacing10", "pacing16", "jumping16"],
+        help="Gait pattern to use.",
+    )
+    parser.add_argument(
+        "--xvel",
+        type=float,
+        default=None,
+        help="Desired forward velocity in m/s. Default: uses value from Go2MpcConfig (0.5).",
+    )
+    parser.add_argument(
+        "--yvel",
+        type=float,
+        default=None,
+        help="Desired lateral velocity in m/s. Default: uses value from Go2MpcConfig (0.0).",
+    )
+    parser.add_argument(
+        "--yaw-rate",
+        type=float,
+        default=None,
+        help="Desired yaw turn rate in rad/s. Default: uses value from Go2MpcConfig (0.0).",
+    )
+    return parser.parse_args()
+
+
+def run_control_loop(
+    model,
+    data,
+    robot_config,
+    mpc_config,
+    robot_data,
+    steps=0,
+    viewer=None,
+    monitor_rate=20.0,
+    foot_traj_rate=20.0,
+    foot_traj_samples=256,
+    logger=None,
+    log_compact=False,
+    log_detailed=True,
+    log_interval=1,
+    gait_name="trotting10",
+    xvel=0.5,
+    yvel=0.0,
+    yaw_rate=0.0,
+):
+    """Run the closed-loop locomotion controller.
+
+    One loop iteration corresponds to one low-level control step. The MPC solver
+    is updated at its own slower interval inside ModelPredictiveController, while
+    the leg controller produces torques every iteration.
+    """
+    predictive_controller = ModelPredictiveController(mpc_config, robot_config)
+    leg_controller = LegController(robot_config.Kp_swing, robot_config.Kd_swing)
+
+    # Gait mapping from string name to Gait enum
+    gait_map = {
+        "standing": Gait.STANDING,
+        "trotting10": Gait.TROTTING10,
+        "trotting16": Gait.TROTTING16,
+        "pacing10": Gait.PACING10,
+        "pacing16": Gait.PACING16,
+        "jumping16": Gait.JUMPING16,
+    }
+    gait = gait_map[gait_name]
+    swing_foot_trajs = [SwingFootTrajectoryGenerator(leg_idx, robot_config) for leg_idx in range(4)]
+
+    # Desired base velocity is expressed in the robot base frame
+    vel_base_des = np.array([xvel, yvel, 0.])
+    yaw_turn_rate_des = yaw_rate
+
+    iter_counter = 0
+    monitor_update_interval = get_viewer_update_interval(model, monitor_rate)
+    foot_traj_update_interval = get_viewer_update_interval(model, foot_traj_rate)
+    wall_start = time.monotonic()
+    sim_start = data.time
+
+    print(f"\n{'='*60}")
+    print(f"Go2 MPC Controller Starting")
+    print(f"{'='*60}")
+    print(f"  Robot: Unitree Go2")
+    print(f"  Mass: {robot_config.mass_base} kg")
+    print(f"  Base height: {robot_config.base_height_des} m")
+    print(f"  Swing height: {robot_config.swing_height} m")
+    print(f"  Foot radius: {robot_config.foot_radius} m")
+    print(f"  Gait: {gait_name}")
+    print(f"  Desired velocity: [{xvel:.2f}, {yvel:.2f}, 0.00] m/s")
+    print(f"  Desired yaw rate: {yaw_rate:.2f} rad/s")
+    print(f"  MPC dt: {mpc_config.dt_mpc:.3f}s, horizon: {mpc_config.horizon}")
+    print(f"  Friction coef: {mpc_config.friction_coef}")
+    print(f"{'='*60}\n")
+
+    while steps == 0 or iter_counter < steps:
+        if viewer is not None and not viewer.is_running():
+            break
+
+        if not STATE_ESTIMATION:
+            sensor_data = get_true_simulation_data(model, data)
+        else:
+            sensor_data = get_simulated_sensor_data(data)
+
+        robot_data.update(
+            pos_base=sensor_data[0],
+            lin_vel_base=sensor_data[1],
+            quat_base=sensor_data[2],
+            ang_vel_base=sensor_data[3],
+            q=sensor_data[4],
+            qdot=sensor_data[5],
+        )
+
+        # Log robot data if logger is enabled
+        if logger is not None and iter_counter % log_interval == 0:
+            if log_compact:
+                logger.log_compact(robot_data, iter_counter, data.time)
+            elif log_detailed:
+                logger.log(robot_data, iter_counter, data.time)
+            else:
+                logger.log(robot_data, iter_counter, data.time)
+
+        gait.set_iteration(predictive_controller.iterations_between_mpc, iter_counter)
+        swing_states = gait.get_swing_state()
+        gait_table = gait.get_gait_table()
+
+        # Update MPC if needed
+        predictive_controller.update_robot_state(robot_data)
+        contact_forces = predictive_controller.update_mpc_if_needed(
+            iter_counter,
+            vel_base_des,
+            yaw_turn_rate_des,
+            gait_table,
+            solver='drake',
+            debug=False,
+            iter_debug=0,
+        )
+
+        pos_targets_swingfeet = np.zeros((4, 3))
+        vel_targets_swingfeet = np.zeros((4, 3))
+
+        # Compute swing foot trajectories for swing legs
+        for leg_idx in range(4):
+            if swing_states[leg_idx] > 0:
+                swing_foot_trajs[leg_idx].set_foot_placement(
+                    robot_data, gait, vel_base_des, yaw_turn_rate_des
+                )
+                base_pos_base_swingfoot_des, base_vel_base_swingfoot_des = \
+                    swing_foot_trajs[leg_idx].compute_traj_swingfoot(
+                        robot_data, gait
+                    )
+                pos_targets_swingfeet[leg_idx, :] = base_pos_base_swingfoot_des
+                vel_targets_swingfeet[leg_idx, :] = base_vel_base_swingfoot_des
+
+        # Convert desired velocity from base frame to world frame
+        vel_base_des_world = robot_data.R_base @ vel_base_des
+        lin_vel_base_world = robot_data.lin_vel_base
+
+        # Compute joint torques
+        torque_cmds = leg_controller.update(
+            robot_data,
+            contact_forces,
+            swing_states,
+            pos_targets_swingfeet,
+            vel_targets_swingfeet,
+        )
+        data.ctrl[:] = torque_cmds
+
+        mujoco.mj_step(model, data)
+        
+        if viewer is not None:
+            center_viewer_on_robot(viewer, data)
+            
+            # Debug geometry - foot trajectories
+            if (
+                foot_traj_update_interval is not None
+                and iter_counter % foot_traj_update_interval == 0
+            ):
+                update_viewer_foot_trajectories(
+                    viewer,
+                    robot_data,
+                    swing_foot_trajs,
+                    gait,
+                    iter_counter,
+                    predictive_controller.iterations_between_mpc,
+                    predictive_controller.horizon,
+                    predictive_controller.dt,
+                    vel_base_des,
+                    yaw_turn_rate_des,
+                    swing_states,
+                    contact_forces,
+                    foot_traj_samples,
+                    vel_base_des_world,
+                    lin_vel_base_world,
+                )
+            
+            # Text overlay - monitor
+            if (
+                monitor_update_interval is not None
+                and iter_counter % monitor_update_interval == 0
+            ):
+                elapsed_wall_time = max(time.monotonic() - wall_start, 1e-9)
+                real_time_factor = (data.time - sim_start) / elapsed_wall_time
+                update_viewer_monitor(
+                    viewer,
+                    data,
+                    robot_data,
+                    predictive_controller,
+                    gait,
+                    swing_states,
+                    contact_forces,
+                    vel_base_des,
+                    yaw_turn_rate_des,
+                    iter_counter,
+                    monitor_rate,
+                    real_time_factor,
+                    vel_base_des_world,
+                    lin_vel_base_world,
+                )
+            viewer.sync()
+        
+        iter_counter += 1
+        
+        # Small delay to prevent overwhelming the display
+        time.sleep(0.0002)
+
+        # Periodic reset to prevent counter overflow
+        if iter_counter == 50000:
+            reset_robot_state(model, data, robot_config)
+            if viewer is not None:
+                viewer.user_scn.ngeom = 0
+            iter_counter = 0
+
+    # Close logger when control loop ends
+    if logger is not None:
+        logger.close()
+        print(f"Log file closed: {logger.filepath}")
+
+
+def main():
+    args = parse_args()
+    cur_path = os.path.dirname(__file__)
+    
+    # Load Go2 MuJoCo model
+    mujoco_xml_path = os.path.join(cur_path, '../robot/go2/go2.xml')
+    model = mujoco.MjModel.from_xml_path(mujoco_xml_path)
+    data = mujoco.MjData(model)
+
+    # Use Go2-specific configurations
+    robot_config = Go2Config
+    mpc_config = Go2MpcConfig
+
+    # Initialize MuJoCo state before constructing RobotData
+    reset_robot_state(model, data, robot_config)
+    mujoco.mj_step(model, data)
+
+    # Load URDF for Pinocchio kinematics
+    urdf_path = os.path.join(cur_path, '../robot/go2/urdf/go2.urdf')
+    robot_data = RobotData(urdf_path, state_estimation=STATE_ESTIMATION)
+
+    # Create logger if log file is specified
+    logger = None
+    if args.log_file is not None:
+        logger = RobotDataLogger(args.log_file)
+        print(f"Logging RobotData to: {args.log_file}")
+
+    if args.no_viewer:
+        run_control_loop(
+            model,
+            data,
+            robot_config,
+            mpc_config,
+            robot_data,
+            steps=args.steps,
+            viewer=None,
+            monitor_rate=args.monitor_rate,
+            foot_traj_rate=args.foot_traj_rate,
+            foot_traj_samples=args.foot_traj_samples,
+            logger=logger,
+            log_compact=args.log_compact,
+            log_detailed=args.log_detailed,
+            log_interval=args.log_interval,
+            gait_name=args.gait,
+            xvel=args.xvel if args.xvel is not None else mpc_config.cmd_xvel,
+            yvel=args.yvel if args.yvel is not None else mpc_config.cmd_yvel,
+            yaw_rate=args.yaw_rate if args.yaw_rate is not None else mpc_config.cmd_yaw_turn_rate,
+        )
+    else:
+        from mujoco import viewer as mujoco_viewer
+
+        with mujoco_viewer.launch_passive(model, data) as viewer:
+            run_control_loop(
+                model,
+                data,
+                robot_config,
+                mpc_config,
+                robot_data,
+                steps=args.steps,
+                viewer=viewer,
+                monitor_rate=args.monitor_rate,
+                foot_traj_rate=args.foot_traj_rate,
+                foot_traj_samples=args.foot_traj_samples,
+                logger=logger,
+                log_compact=args.log_compact,
+                log_detailed=args.log_detailed,
+                log_interval=args.log_interval,
+                gait_name=args.gait,
+                xvel=args.xvel if args.xvel is not None else mpc_config.cmd_xvel,
+                yvel=args.yvel if args.yvel is not None else mpc_config.cmd_yvel,
+                yaw_rate=args.yaw_rate if args.yaw_rate is not None else mpc_config.cmd_yaw_turn_rate,
+            )
+
+
+if __name__ == '__main__':
+    main()

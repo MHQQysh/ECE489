@@ -1,0 +1,372 @@
+<?xml version="1.0"?>
+<robot name="go2_description">
+
+    <material name="black">
+        <color rgba="0.0 0.0 0.0 1.0"/>
+    </material>
+    <material name="gray">
+        <color rgba="0.671705 0.692426 0.774270 1.0"/>
+    </material>
+    <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0"/>
+    </material>
+
+    <!-- Base link (trunk) -->
+    <link name="trunk">
+        <inertial>
+            <origin xyz="0.021112 0 -0.005366" rpy="0 0 0"/>
+            <mass value="6.921"/>
+            <inertia ixx="0.107027" ixy="0" ixz="0" iyy="0.0980771" iyz="0" izz="0.0244531"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="../dae/base.dae" scale="1 1 1"/>
+            </geometry>
+            <material name="gray"/>
+        </visual>
+    </link>
+
+    <joint name="imu_joint" type="fixed">
+        <parent link="trunk"/>
+        <child link="imu_link"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+    </joint>
+    <link name="imu_link">
+        <inertial>
+            <mass value="0.001"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.0001"/>
+        </inertial>
+    </link>
+
+    <!-- FL leg -->
+    <joint name="FL_hip_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0.1934 0.0465 0"/>
+        <parent link="trunk"/>
+        <child link="FL_hip"/>
+        <axis xyz="1 0 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="23.5" lower="-1.0472" upper="1.0472" velocity="40"/>
+    </joint>
+    <link name="FL_hip">
+        <inertial>
+            <mass value="0.678"/>
+            <inertia ixx="0.00088403" ixy="0" ixz="0" iyy="0.000596003" iyz="0" izz="0.000479967"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/hip.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="FL_thigh_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0.0955 0"/>
+        <parent link="FL_hip"/>
+        <child link="FL_thigh"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="23.5" lower="-1.5708" upper="3.4907" velocity="40"/>
+    </joint>
+    <link name="FL_thigh">
+        <inertial>
+            <mass value="1.152"/>
+            <inertia ixx="0.00594973" ixy="0" ixz="0" iyy="0.00584149" iyz="0" izz="0.000878787"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/thigh.dae"/>
+            </geometry>
+            <material name="gray"/>
+        </visual>
+    </link>
+
+    <joint name="FL_calf_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 -0.213"/>
+        <parent link="FL_thigh"/>
+        <child link="FL_calf"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="45" lower="-2.7227" upper="-0.83776" velocity="40"/>
+    </joint>
+    <link name="FL_calf">
+        <inertial>
+            <mass value="0.241352"/>
+            <inertia ixx="0.0014901" ixy="0" ixz="0" iyy="0.00146356" iyz="0" izz="5.31397e-05"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/calf.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <!-- FL_foot_fixed joint - MUST match the name in robot_data.py -->
+    <joint name="FL_foot_fixed" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 -0.213"/>
+        <parent link="FL_calf"/>
+        <child link="FL_foot"/>
+    </joint>
+    <link name="FL_foot">
+        <inertial>
+            <mass value="0.05"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/foot.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <!-- FR leg -->
+    <joint name="FR_hip_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0.1934 -0.0465 0"/>
+        <parent link="trunk"/>
+        <child link="FR_hip"/>
+        <axis xyz="1 0 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="23.5" lower="-1.0472" upper="1.0472" velocity="40"/>
+    </joint>
+    <link name="FR_hip">
+        <inertial>
+            <mass value="0.678"/>
+            <inertia ixx="0.00088403" ixy="0" ixz="0" iyy="0.000596003" iyz="0" izz="0.000479967"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/hip.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="FR_thigh_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 -0.0955 0"/>
+        <parent link="FR_hip"/>
+        <child link="FR_thigh"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="23.5" lower="-1.5708" upper="3.4907" velocity="40"/>
+    </joint>
+    <link name="FR_thigh">
+        <inertial>
+            <mass value="1.152"/>
+            <inertia ixx="0.00594973" ixy="0" ixz="0" iyy="0.00584149" iyz="0" izz="0.000878787"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/thigh_mirror.dae"/>
+            </geometry>
+            <material name="gray"/>
+        </visual>
+    </link>
+
+    <joint name="FR_calf_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 -0.213"/>
+        <parent link="FR_thigh"/>
+        <child link="FR_calf"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="45" lower="-2.7227" upper="-0.83776" velocity="40"/>
+    </joint>
+    <link name="FR_calf">
+        <inertial>
+            <mass value="0.241352"/>
+            <inertia ixx="0.0014901" ixy="0" ixz="0" iyy="0.00146356" iyz="0" izz="5.31397e-05"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/calf_mirror.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="FR_foot_fixed" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 -0.213"/>
+        <parent link="FR_calf"/>
+        <child link="FR_foot"/>
+    </joint>
+    <link name="FR_foot">
+        <inertial>
+            <mass value="0.05"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/foot.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <!-- RL leg -->
+    <joint name="RL_hip_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="-0.1934 0.0465 0"/>
+        <parent link="trunk"/>
+        <child link="RL_hip"/>
+        <axis xyz="1 0 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="23.5" lower="-1.0472" upper="1.0472" velocity="40"/>
+    </joint>
+    <link name="RL_hip">
+        <inertial>
+            <mass value="0.678"/>
+            <inertia ixx="0.00088403" ixy="0" ixz="0" iyy="0.000596003" iyz="0" izz="0.000479967"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/hip.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="RL_thigh_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0.0955 0"/>
+        <parent link="RL_hip"/>
+        <child link="RL_thigh"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="23.5" lower="-0.5236" upper="4.5379" velocity="40"/>
+    </joint>
+    <link name="RL_thigh">
+        <inertial>
+            <mass value="1.152"/>
+            <inertia ixx="0.00594973" ixy="0" ixz="0" iyy="0.00584149" iyz="0" izz="0.000878787"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/thigh.dae"/>
+            </geometry>
+            <material name="gray"/>
+        </visual>
+    </link>
+
+    <joint name="RL_calf_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 -0.213"/>
+        <parent link="RL_thigh"/>
+        <child link="RL_calf"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="45" lower="-2.7227" upper="-0.83776" velocity="40"/>
+    </joint>
+    <link name="RL_calf">
+        <inertial>
+            <mass value="0.241352"/>
+            <inertia ixx="0.0014901" ixy="0" ixz="0" iyy="0.00146356" iyz="0" izz="5.31397e-05"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/calf.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="RL_foot_fixed" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 -0.213"/>
+        <parent link="RL_calf"/>
+        <child link="RL_foot"/>
+    </joint>
+    <link name="RL_foot">
+        <inertial>
+            <mass value="0.05"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/foot.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <!-- RR leg -->
+    <joint name="RR_hip_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="-0.1934 -0.0465 0"/>
+        <parent link="trunk"/>
+        <child link="RR_hip"/>
+        <axis xyz="1 0 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="23.5" lower="-1.0472" upper="1.0472" velocity="40"/>
+    </joint>
+    <link name="RR_hip">
+        <inertial>
+            <mass value="0.678"/>
+            <inertia ixx="0.00088403" ixy="0" ixz="0" iyy="0.000596003" iyz="0" izz="0.000479967"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/hip.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="RR_thigh_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 -0.0955 0"/>
+        <parent link="RR_hip"/>
+        <child link="RR_thigh"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="23.5" lower="-0.5236" upper="4.5379" velocity="40"/>
+    </joint>
+    <link name="RR_thigh">
+        <inertial>
+            <mass value="1.152"/>
+            <inertia ixx="0.00594973" ixy="0" ixz="0" iyy="0.00584149" iyz="0" izz="0.000878787"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/thigh_mirror.dae"/>
+            </geometry>
+            <material name="gray"/>
+        </visual>
+    </link>
+
+    <joint name="RR_calf_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 -0.213"/>
+        <parent link="RR_thigh"/>
+        <child link="RR_calf"/>
+        <axis xyz="0 1 0"/>
+        <dynamics damping="0.2" friction="0"/>
+        <limit effort="45" lower="-2.7227" upper="-0.83776" velocity="40"/>
+    </joint>
+    <link name="RR_calf">
+        <inertial>
+            <mass value="0.241352"/>
+            <inertia ixx="0.0014901" ixy="0" ixz="0" iyy="0.00146356" iyz="0" izz="5.31397e-05"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/calf_mirror.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="RR_foot_fixed" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 -0.213"/>
+        <parent link="RR_calf"/>
+        <child link="RR_foot"/>
+    </joint>
+    <link name="RR_foot">
+        <inertial>
+            <mass value="0.05"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <mesh filename="../dae/foot.dae"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+</robot>

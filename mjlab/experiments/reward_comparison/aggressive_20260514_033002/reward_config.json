@@ -1,0 +1,20 @@
+{
+  "track_linear_velocity": 5.0,
+  "track_linear_velocity_std": 0.4472135954999579,
+  "track_angular_velocity": 3.5,
+  "track_angular_velocity_std": 0.7071067811865476,
+  "upright": 0.3,
+  "upright_std": 0.4472135954999579,
+  "pose": 0.3,
+  "action_rate_l2": -0.05,
+  "dof_pos_limits": -1.0,
+  "foot_clearance": -1.5,
+  "foot_clearance_target": 0.1,
+  "foot_swing_height": -0.15,
+  "air_time": 2.5,
+  "foot_slip": -0.1,
+  "soft_landing": -1e-05,
+  "self_collisions": -0.1,
+  "shank_collision": -0.1,
+  "trunk_head_collision": -0.1
+}

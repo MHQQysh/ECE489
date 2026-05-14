@@ -1,0 +1,9 @@
+drake>=1.51,<1.52
+matplotlib
+mujoco>=3.7,<3.8
+numba
+numpy
+osqp
+pin>=3.9,<3.10
+qpsolvers
+scipy

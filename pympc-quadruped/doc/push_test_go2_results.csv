@@ -1,0 +1,2 @@
+push_time_s,push_duration_s,force_n,dir_x,dir_y,command_vx,command_vy,max_base_speed,max_roll_deg,max_pitch_deg,max_yaw_rate,min_base_height,base_height_drop,recovery_time_s,fell
+0.2000,0.0800,80.0000,-80.000000,0.000000,1.0000,0.0000,1.0997,4.8457,17.5139,0.3368,0.2500,0.0700,inf,0
