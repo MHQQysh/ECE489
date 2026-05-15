@@ -205,3 +205,19 @@ randomization这里/home/y/ece489/project/with
                                                           
   flat       Fwd 1.0 + Lat 0.5      5.3980       0.5948   
   这套数据作为最终结果     
+
+##########################################################
+
+现在第五部分加一块写simtoreal 写到final_report_v2里面
+
+然后这三个视频分别截取一张图 标注上 拼在一起
+/home/y/ece489/ECE489-RL-MPC/paper/train in sim.webm
+/home/y/ece489/ECE489-RL-MPC/paper/simtosim.webm
+/home/y/ece489/ECE489-RL-MPC/paper/oursimtoreal.mp4
+
+然后放一个good的
+/home/y/ece489/ECE489-RL-MPC/paper/Good simtoreal.mp4
+
+需要说明一些im-to-real: Deploy a policy on a real Unitree robot and document the sim-to-real gap.
+
+感觉就是摩擦太大 然后一个比一个相对来说效果更差 更难移动

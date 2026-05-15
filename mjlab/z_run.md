@@ -274,12 +274,6 @@ uv run play Mjlab-Velocity-Slope-Unitree-Go2 \
 
 
 
-# cpg
-
-cd /home/y/ece489/lab4/mjlab
-uv run python src/mjlab/scripts/demo_cpg.py
-
-
 
 
 
@@ -306,9 +300,21 @@ sudo. ./
 
 
 
-# isaacgym训练
-cd /home/y/ece489/lab4/go2_deploy/scripts
-source ~/isaacgym_env/bin/activate
-python train.py
+
+#########################################3
+
+cd /home/y/ece489/ECE489-RL-MPC/mjlab/ && export WANDB_MODE=disabled
+
+MUJOCO_GL=egl uv run train Mjlab-Velocity-Flat-Unitree-Go2-42 \
+  --env.scene.num-envs 1024 \
+  --agent.max-iterations 1000 \
+  --agent.save-interval 500 
 
 
+
+cd /home/y/ece489/ECE489-RL-MPC/mjlab/ && export WANDB_MODE=disabled
+MUJOCO_GL=egl uv run play Mjlab-Velocity-Flat-Unitree-Go2-42 \
+--checkpoint-file /home/y/ece489/ECE489-RL-MPC/mjlab/logs/rsl_rl/go2_velocity/2026-05-14_14-30-02/model_500.pt \
+--num-envs 1 \
+--device cuda:0 \
+--viewer viser

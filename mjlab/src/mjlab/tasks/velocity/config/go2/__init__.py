@@ -5,6 +5,7 @@ from .env_cfgs import (
   GO2_TERRAIN_CHOICES,
   Go2TerrainType,
   unitree_go2_flat_env_cfg,
+  unitree_go2_flat_env_cfg_42d,
   unitree_go2_rough_env_cfg,
   unitree_go2_rough_no_dr_env_cfg,
   unitree_go2_rough_no_height_env_cfg,
@@ -44,6 +45,14 @@ register_mjlab_task(
 )
 
 register_mjlab_task(
+  task_id="Mjlab-Velocity-Flat-Unitree-Go2-42",
+  env_cfg=unitree_go2_flat_env_cfg_42d(),
+  play_env_cfg=unitree_go2_flat_env_cfg_42d(play=True),
+  rl_cfg=unitree_go2_ppo_runner_cfg(),
+  runner_cls=VelocityOnPolicyRunner,
+)
+
+register_mjlab_task(
   task_id="Mjlab-Velocity-Rough-NoHeight-Unitree-Go2",
   env_cfg=unitree_go2_rough_no_height_env_cfg(),
   play_env_cfg=unitree_go2_rough_no_height_env_cfg(play=True),
@@ -64,6 +73,7 @@ __all__ = [
   "GO2_TERRAIN_CHOICES",
   "Go2TerrainType",
   "unitree_go2_flat_env_cfg",
+  "unitree_go2_flat_env_cfg_42d",
   "unitree_go2_rough_env_cfg",
   "unitree_go2_rough_no_dr_env_cfg",
   "unitree_go2_rough_no_height_env_cfg",

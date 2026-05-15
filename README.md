@@ -22,7 +22,7 @@
       - `run_reward_experiments.py`
       - `run_all_experiments.sh`
       - `reward_experiments_config.py`
-   7. 待完成
+   7. 进行了sim2sim和sim2real
       - sim2real
 
    详细文档: [`mjlab/README.md`](mjlab/README.md)
@@ -48,7 +48,15 @@
       - 斜坡地形测试
    
    详细文档: [`pympc-quadruped/README.md`](pympc-quadruped/README.md)
-3. **paper**
+3. **Go2_deploy**
+   1. 完成mjlab文件转换放到runs里面pkl+jit格式
+      - `convert_mjlab_checkpoint_42.py`
+   2. 修改mjlab为只有42个输入 重新训练，因为部署的时候没有base_velocity和base_ang传感器
+      - `deploy_policy_mjlab_42.py`
+   3. 部署配置环境参考readme即可
+
+   详细文档: [`go2_deploy/README.md`](go2_deploy/README.md)
+4. **paper**
    1. final report latex
   
    
@@ -56,7 +64,7 @@
 
 ## 1. 环境配置
 
-两个子项目使用独立的 Python 环境，需要分别进行配置：
+三个子项目使用独立的 Python 环境，需要分别进行配置：
 
 ```bash
 # 配置 RL 项目环境

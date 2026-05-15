@@ -651,3 +651,28 @@ def unitree_go2_rough_no_dr_env_cfg(
     cfg.events.pop(event_name, None)
 
   return cfg
+
+
+def unitree_go2_flat_env_cfg_42d(play: bool = False) -> ManagerBasedRlEnvCfg:
+  """Create Unitree Go2 flat terrain velocity config with 42D observation space.
+
+  This configuration removes base_lin_vel and base_ang_vel from observations,
+  reducing the observation space from 48D to 42D to match WTW project setup:
+  - gravity (3D)
+  - commands (3D)
+  - dof_pos (12D)
+  - dof_vel (12D)
+  - actions (12D)
+  Total: 42D
+  """
+  cfg = unitree_go2_flat_env_cfg(play=play)
+
+  # Remove base velocities from actor observations
+  cfg.observations["actor"].terms.pop("base_lin_vel", None)
+  cfg.observations["actor"].terms.pop("base_ang_vel", None)
+
+  # Remove base velocities from critic observations
+  cfg.observations["critic"].terms.pop("base_lin_vel", None)
+  cfg.observations["critic"].terms.pop("base_ang_vel", None)
+
+  return cfg

@@ -772,11 +772,20 @@ Rough (pyramids, steps) & 2000+ & Jumping/Bounding \\
 \end{itemize}
 
 \subsubsection{Sim-to-Real Transfer}
+
+We also performed a preliminary sim-to-real validation on a physical Unitree robot to document the gap between simulation and hardware execution. While the policy transfers the basic trotting behavior, the real robot shows more noticeable oscillations, delayed swing timing, and reduced tracking accuracy compared with simulation. These differences come from unmodeled actuator latency, ground compliance, sensor noise, and parameter mismatch in friction and mass distribution.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\textwidth]{sim_to_real_comparison.png}
+\caption{Sim-to-real comparison across different rollout videos. From left to right: training in simulation, sim-to-sim validation, our sim-to-real rollout, and a better sim-to-real reference case. The images highlight the performance gap caused by real hardware dynamics and imperfect model matching.}
+\end{figure}
+
 \begin{itemize}
-    \item Deploy on physical Unitree Go2 robot
-    \item Measure sim-to-real gap in tracking and stability
-    \item Apply system identification and domain adaptation techniques
-    \item Validate robustness claims with real-world disturbances
+    \item Deploy a policy on a real Unitree robot and document the sim-to-real gap
+    \item Measure tracking degradation, stance instability, and gait asymmetry on hardware
+    \item Use this gap analysis to motivate domain randomization and further system identification
+    \item Compare our rollout against a stronger sim-to-real example to understand what high-quality transfer looks like
 \end{itemize}
 
 \section{Conclusion}
